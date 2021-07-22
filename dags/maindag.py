@@ -7,7 +7,8 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.utils.trigger_rule import TriggerRule
 from airflow.models.dagrun import DagRun
 
-from helpers import sqlQueries
+from plugins.helpers import sqlQueries, functions
+
 import logging
 
 def start():
@@ -27,23 +28,45 @@ def end():
     logging.info("Ending DAG")
 
 
-
-
-
-
-
-fetchCount = PostgresOperator(
-    task_id="create_table",
-    dag=dag,
-    postgres_conn_id="airflow",
-    sql=sqlQueries.fetchCount
+fetchCount = PythonOperator(
+    task_id = 'fetchCount',
+    python_callable= functions.fetchCount,
+    provide_context = True,
+    # op_kwargs={'date': datetime.date.now()}
+    dag = dag
 )
 
-selectTicker = PostgresOperator(
-    task_id="create_table",
-    dag=dag,
-    postgres_conn_id="airflow",
-    sql=sqlQueries.selectTicker,
-    params = {''}
+selectTicker = PythonOperator(
+    task_id = 'selectTicker',
+    python_callable= functions.selectTicker,
+    provide_context = True,
+    # op_kwargs={'date': datetime.date.now()}
+    dag = dag
 )
-    
+
+populateStages = PythonOperator(
+    task_id = 'populateStages',
+    python_callable= functions.populateStages,
+    provide_context = True,
+    # op_kwargs={'date': datetime.date.now()}
+    dag = dag
+)
+
+initializeNextDag = TriggerDagRunOperator(
+    task_id="initializeNextDag",
+    trigger_dag_id="******************"
+)
+
+extractNews = PythonOperator(
+    task_id="extractNews",
+    python_callable= functions.extractNews,
+    provide_context = True,
+    dag = dag
+)
+
+extractTweets = PythonOperator(
+    task_id="extractTweets",
+    python_callable= functions.extractTweets,
+    provide_context = True,
+    dag = dag
+)
