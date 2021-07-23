@@ -8,8 +8,9 @@ from airflow.utils.trigger_rule import TriggerRule
 from airflow.models.dagrun import DagRun
 
 from plugins.helpers import sqlQueries, functions
-
+from plugins.operators import sentimentOperator
 import logging
+
 
 def start():
     """ 
@@ -48,7 +49,7 @@ populateStages = PythonOperator(
     task_id = 'populateStages',
     python_callable= functions.populateStages,
     provide_context = True,
-    # op_kwargs={'date': datetime.date.now()}
+    # op_kwargs={}
     dag = dag
 )
 
@@ -67,6 +68,20 @@ extractNews = PythonOperator(
 extractTweets = PythonOperator(
     task_id="extractTweets",
     python_callable= functions.extractTweets,
+    provide_context = True,
+    dag = dag
+)
+
+sentimentOperatorNews = sentimentOperator(
+    task_id = "sentimentNews" ,
+    params ={ 'dataset': 'News' },
+    provide_context = True,
+    dag = dag
+)
+
+sentimentOperatorTweets = sentimentOperator(
+    task_id = "sentimentTweets" ,
+    params ={ 'api': 'Tweets' },
     provide_context = True,
     dag = dag
 )
