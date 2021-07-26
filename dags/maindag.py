@@ -1,3 +1,4 @@
+from plugins.operators.insertionOperator import insertionOperator
 from airflow import DAG
 from airflow.models import dag
 from airflow.utils.dates import days_ago
@@ -73,23 +74,29 @@ extractTweets = PythonOperator(
 )
 
 extractTrends = PythonOperator(
-    task_id="extractTrends",
+    task_id="returnTrends",
     python_callable= functions.extractTrends,
     provide_context = True,
     dag = dag
 )
 
 sentimentOperatorNews = sentimentOperator(
-    task_id = "sentimentNews" ,
-    params ={ 'dataset': 'News' },
+    task_id = "returnNews" ,
+    params = { 'dataset': 'News' },
     provide_context = True,
     dag = dag
 )
 
 sentimentOperatorTweets = sentimentOperator(
-    task_id = "sentimentTweets" ,
-    params ={ 'api': 'Tweets' },
+    task_id = "returnTweets" ,
+    params = { 'dataset': 'Tweets' },
     provide_context = True,
     dag = dag
 )
 
+insertionTask = insertionOperator(
+    task_id = 'insertionTask',
+    params = { 'dataset': 'Trends', 'Tweets', 'News' },
+    provide_context = True,
+    dag = dag
+)
