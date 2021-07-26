@@ -72,6 +72,13 @@ extractTweets = PythonOperator(
     dag = dag
 )
 
+extractTrends = PythonOperator(
+    task_id="extractTrends",
+    python_callable= functions.extractTrends,
+    provide_context = True,
+    dag = dag
+)
+
 sentimentOperatorNews = sentimentOperator(
     task_id = "sentimentNews" ,
     params ={ 'dataset': 'News' },
@@ -85,3 +92,4 @@ sentimentOperatorTweets = sentimentOperator(
     provide_context = True,
     dag = dag
 )
+
