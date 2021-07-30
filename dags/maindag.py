@@ -96,7 +96,13 @@ sentimentOperatorTweets = sentimentOperator(
 
 insertionTask = insertionOperator(
     task_id = 'insertionTask',
-    params = { 'dataset': 'Trends', 'Tweets', 'News' },
+    dataset = ['Trends', 'Tweets', 'News'],
     provide_context = True,
     dag = dag
 )
+
+fetchCount >> selectTicker >> populateStages >> initializeNextDag
+
+initializeNextDag >> extractTweets >> sentimentOperatorTweets >> insertionTask
+initializeNextDag >> extractNews >> sentimentOperatorNews
+initializeNextDag >> extractTrends

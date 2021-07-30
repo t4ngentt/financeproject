@@ -14,7 +14,7 @@ def fetchCount(**kwargs):
     :params: None
     :returns: count (int)
     """
-    postgresHook = PostgresHook(postgres_conn_id='postgres', schema='postgres')
+    postgresHook = PostgresHook(postgres_conn_id=os.getenv('postgres_conn_id'), schema=os.getenv('schema'))
 
     count = postgresHook.get_first("SELECT COUNT(*) FROM stages")
     count = count[0]
@@ -28,7 +28,7 @@ def selectTicker(**kwargs):
     :returns: ticker (str)
     :xcom: fetchCount
     """
-    postgresHook = PostgresHook(postgres_conn_id='postgres', schema='postgres')
+    postgresHook = PostgresHook(postgres_conn_id=os.getenv('postgres_conn_id'), schema=os.getenv('schema'))
 
     ti = kwargs['task_instance']
     count = ti.xcom_pull(task_ids='fetchCount')
@@ -45,7 +45,7 @@ def populateStages(**kwargs):
     :returns: None
     :xcom: selectTicker
     """
-    postgresHook = PostgresHook(postgres_conn_id='postgres', schema='postgres')
+    postgresHook = PostgresHook(postgres_conn_id=os.getenv('postgres_conn_id'), schema=os.getenv('schema'))
 
     ti = kwargs['task_instance']
     ticker = ti.xcom_pull(task_ids='selectTicker')
@@ -91,7 +91,7 @@ def extractNews(**kwargs):
     ti = kwargs['task_instance']
     ticker = ti.xcom_pull(task_ids='select_ticker')
     
-    postgresHook = PostgresHook(postgres_conn_id='postgres', schema='postgres')
+    postgresHook = PostgresHook(postgres_conn_id=os.getenv('postgres_conn_id'), schema=os.getenv('schema'))
 
     companyName = postgresHook.get_first("SELECT companyName from tickers1 WHERE keyword = '" + ticker + "'")
     companyName = companyName[0]
@@ -111,7 +111,7 @@ def extractTrends(**kwargs):
     :returns: None
     :xcom: selectTicker
     """
-    postgresHook = PostgresHook(postgres_conn_id='postgres', schema='postgres')
+    postgresHook = PostgresHook(postgres_conn_id=os.getenv('postgres_conn_id'), schema=os.getenv('schema'))
     regionsJson = postgresHook.get_records("SELECT ")
 
     ti = kwargs['task_instance']
